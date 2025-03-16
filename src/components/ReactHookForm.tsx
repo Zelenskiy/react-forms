@@ -1,24 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { saveReactHookForm } from '../store/formSlice';
 import AutocompleteCountry from './AutocompleteCountry';
-import { formSchema } from '../validations/schemas';
 import { FormData } from '../types/types';
 
 const ReactHookForm = () => {
-  const [passwordStrength, setPasswordStrength] = useState({
-    hasNumber: false,
-    hasUpperCase: false,
-    hasLowerCase: false,
-    hasSpecialChar: false,
-  });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [country, setCountry] = useState<string>('');
-  const [imageBase64, setImageBase64] = useState<string | null>(null);
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -26,14 +16,11 @@ const ReactHookForm = () => {
     register,
     handleSubmit,
     formState: { errors, isValid },
-    watch,
     setValue,
     trigger,
   } = useForm<FormData>({
-    resolver: yupResolver(formSchema),
     mode: 'onChange',
     defaultValues: {
-      name: '',
       age: undefined,
       email: '',
       password: '',
@@ -43,19 +30,6 @@ const ReactHookForm = () => {
       imageBase64: '',
     },
   });
-
-  const password = watch('password');
-
-  useEffect(() => {
-    if (password) {
-      setPasswordStrength({
-        hasNumber: /\d/.test(password),
-        hasUpperCase: /[A-Z]/.test(password),
-        hasLowerCase: /[a-z]/.test(password),
-        hasSpecialChar: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
-      });
-    }
-  }, [password]);
 
   useEffect(() => {
     setValue('country', country);
@@ -69,7 +43,6 @@ const ReactHookForm = () => {
       reader.onloadend = () => {
         const base64 = reader.result as string;
         setImagePreview(file ? URL.createObjectURL(file) : null);
-        setImageBase64(base64);
         setValue('imageBase64', base64);
         console.log('file', file);
         trigger('imageBase64');

@@ -62,13 +62,13 @@ const validateImage = (value: unknown): boolean => {
 
 export const formSchema = yup.object().shape({
   name: yup
-  .string()
-  .required('Name is required')
-  .test(
-    'is-uppercase',
-    'First letter must be uppercase',
-    isFirstLetterUpperCase
-  ),
+    .string()
+    .required('Name is required')
+    .test(
+      'is-uppercase',
+      'First letter must be uppercase',
+      isFirstLetterUpperCase
+    ),
 
   age: yup
     .number()

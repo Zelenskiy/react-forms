@@ -25,24 +25,9 @@ const UncontrolledForm = () => {
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
-  const [passwordStrength, setPasswordStrength] = useState({
-    hasNumber: false,
-    hasUpperCase: false,
-    hasLowerCase: false,
-    hasSpecialChar: false,
-  });
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const checkPasswordStrength = (password: string) => {
-    setPasswordStrength({
-      hasNumber: /\d/.test(password),
-      hasUpperCase: /[A-Z]/.test(password),
-      hasLowerCase: /[a-z]/.test(password),
-      hasSpecialChar: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
-    });
-  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, name, value, type, checked, files } = e.target;
@@ -62,7 +47,6 @@ const UncontrolledForm = () => {
           return;
         }
 
-        
         const reader = new FileReader();
         reader.onloadend = () => {
           setFormData((prev) => ({
@@ -85,12 +69,8 @@ const UncontrolledForm = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
-
-    if (name === 'password') {
-      checkPasswordStrength(value);
-    }
     if (name === 'gender') {
-      setFormData((prev) => ({ 
+      setFormData((prev) => ({
         ...prev,
         gender: id,
       }));
@@ -101,8 +81,6 @@ const UncontrolledForm = () => {
     e.preventDefault();
 
     try {
-      // console.log('Form Data:', formData);
-
       const finalData: Partial<FormData> = {
         ...formData,
         age: formData.age ? Number(formData.age) : undefined,

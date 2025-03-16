@@ -13,7 +13,8 @@ const initialState: FormState = {
     image: undefined,
     country: '',
     isNew: false,
-    firstName: '',
+    mode: '',
+    imageBase64: '',
   },
   reactHookForm: {
     name: '',
@@ -26,7 +27,8 @@ const initialState: FormState = {
     image: undefined,
     country: '',
     isNew: false,
-    firstName: '',
+    mode: '',
+    imageBase64: '',
   },
 };
 

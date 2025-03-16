@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import { resetNewFlag } from '../store/formSlice';
 import { RootState } from '../types/types';
+import DataTile from './DataTitle';
 
 const MainPage = () => {
   const uncontrolledFormData = useSelector(
@@ -56,6 +57,18 @@ const MainPage = () => {
         </Link>
       </nav>
       <Outlet />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <DataTile 
+          title="Uncontrolled Form Data" 
+          data={uncontrolledFormData} 
+          isNew={uncontrolledFormData.isNew}
+        />
+        <DataTile 
+          title="React Hook Form Data" 
+          data={reactHookFormData} 
+          isNew={reactHookFormData.isNew}
+        />
+      </div>
     </header>
   );
 };

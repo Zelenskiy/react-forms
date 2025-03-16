@@ -30,7 +30,7 @@ const ReactHookForm = () => {
     setValue,
     trigger,
   } = useForm<FormData>({
-    resolver: yupResolver(formSchema),
+    // resolver: yupResolver(formSchema),
     mode: 'onChange',
     defaultValues: {
       firstName: '',
@@ -82,6 +82,8 @@ const ReactHookForm = () => {
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+
+    
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -112,37 +114,37 @@ const ReactHookForm = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="form-container">
-      <div>
+      <div className="mb-4">
         <label>Name:</label>
         <input {...register('firstName')} autoComplete="given-name" />
         {errors.firstName && <p>{errors.firstName.message}</p>}
       </div>
 
-      <div>
+      <div className="mb-4">
         <label>Age:</label>
         <input type="number" {...register('age')} autoComplete="age" />
         {errors.age && <p>{errors.age.message}</p>}
       </div>
 
-      <div>
+      <div className="mb-4">
         <label>Email:</label>
         <input type="email" {...register('email')} autoComplete="email" />
         {errors.email && <p>{errors.email.message}</p>}
       </div>
 
-      <div>
+      <div className="mb-4">
         <label>Password:</label>
         <input type="password" {...register('password')} autoComplete="new-password" />
         {errors.password && <p>{errors.password.message}</p>}
       </div>
 
-      <div>
+      <div className="mb-4">
         <label>Confirm Password:</label>
         <input type="password" {...register('confirmPassword')} autoComplete="new-password" />
         {errors.confirmPassword && <p>{errors.confirmPassword.message}</p>}
       </div>
 
-      <div>
+      <div className="mb-4">
         <label>Gender:</label>
         <select {...register('gender')}>
           <option value="">Select</option>
@@ -153,7 +155,7 @@ const ReactHookForm = () => {
         {errors.gender && <p>{errors.gender.message}</p>}
       </div>
 
-      <div>
+      <div className="mb-4">
         <label>Country:</label>
         <AutocompleteCountry 
           value={country} 
@@ -162,7 +164,7 @@ const ReactHookForm = () => {
         {errors.country && <p>{errors.country.message}</p>}
       </div>
 
-      <div>
+      <div className="mb-4">
         <label>Profile Image:</label>
         <input 
           type="file" 

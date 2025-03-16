@@ -38,13 +38,14 @@ const DataTile: FC<DataTileProps> = ({ title, data, isNew }) => {
             <span className="font-medium">Country:</span> {data.country}
           </p>
 
-          {data.image && (
+          {data.imageBase64 && (
             <div className="mt-3">
               <p className="font-medium mb-1">Image:</p>
               <img
-                src={data.image}
+                src={data.imageBase64 as unknown as string}
+                // src={data.image}
                 alt="Uploaded"
-                className="max-w-full h-auto max-h-40 rounded border"
+                className="preview-image"
               />
             </div>
           )}

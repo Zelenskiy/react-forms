@@ -74,9 +74,7 @@ const UncontrolledForm = () => {
 
       setImagePreview(file);
 
-      // Clear error if exists
       if (errors.image) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { image, ...rest } = errors;
         setErrors(rest);
       }
@@ -87,7 +85,6 @@ const UncontrolledForm = () => {
     e.preventDefault();
 
     try {
-      // Get all form values
       const formData: Partial<FormData> = {
         name: nameRef.current?.value || '',
         age: ageRef.current?.value ? Number(ageRef.current.value) : undefined,
@@ -107,12 +104,10 @@ const UncontrolledForm = () => {
         isNew: false,
       };
 
-      // Validate with Yup
       await formSchema.validate(formData, { abortEarly: false });
 
-      // If validation passes
       dispatch(saveUncontrolledForm(formData as FormData));
-      navigate('/'); // Redirect to main page
+      navigate('/');
     } catch (error) {
       if (error instanceof yup.ValidationError) {
         const validationErrors: FormErrors = {};
@@ -191,7 +186,7 @@ const UncontrolledForm = () => {
             <p className="text-red-500 text-xs mt-1">{errors.password}</p>
           )}
 
-          <div className="mt-2">
+          {/* <div className="mt-2">
             <p className="text-sm font-medium mb-1">Password strength:</p>
             <div className="flex space-x-2">
               <div
@@ -229,7 +224,7 @@ const UncontrolledForm = () => {
                 Special character
               </span>
             </div>
-          </div>
+          </div> */}
         </div>
 
         <div className="mb-4">
@@ -254,14 +249,14 @@ const UncontrolledForm = () => {
 
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Gender</label>
-          <div className="flex gap-4">
+          <div className="flex gap-2">
             <div className="flex items-center">
               <input
                 type="radio"
                 id="male"
                 name="gender"
                 ref={maleRef}
-                className="mr-2"
+                className="mr-1"
               />
               <label htmlFor="male">Male</label>
             </div>
@@ -271,7 +266,7 @@ const UncontrolledForm = () => {
                 id="female"
                 name="gender"
                 ref={femaleRef}
-                className="mr-2"
+                className="mr-1"
               />
               <label htmlFor="female">Female</label>
             </div>
@@ -281,7 +276,7 @@ const UncontrolledForm = () => {
                 id="other"
                 name="gender"
                 ref={otherRef}
-                className="mr-2"
+                className="mr-1"
               />
               <label htmlFor="other">Other</label>
             </div>
@@ -314,7 +309,7 @@ const UncontrolledForm = () => {
             <p className="text-red-500 text-xs mt-1">{errors.image}</p>
           )}
 
-          {imagePreview && (
+          {/* {imagePreview && (
             <div className="mt-2">
               <p className="text-sm font-medium mb-1">Image Preview:</p>
               <img
@@ -323,10 +318,9 @@ const UncontrolledForm = () => {
                 className="max-w-full h-auto max-h-40 rounded border"
               />
             </div>
-          )}
+          )} */}
         </div>
 
-        {/* Terms and Conditions Field */}
         <div className="mb-4">
           <div className="flex items-center">
             <input
@@ -344,7 +338,6 @@ const UncontrolledForm = () => {
           )}
         </div>
 
-        {/* Submit Button */}
         <div className="mt-6">
           <button
             type="submit"

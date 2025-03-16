@@ -38,39 +38,23 @@ const MainPage = () => {
         React Forms Application
       </h1>
 
-      <nav className="flex gap-4 mb-8">
-        <Link
-          to="/"
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
+      <nav className="flex gap-4 mb-4 ml-4">
+        <Link to="/" className="px-4 py-2 text-white rounded hover:bg-blue-600">
           Main
         </Link>
         <Link
           to="/uncontrolled-form"
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="px-4 py-2 text-white rounded hover:bg-blue-600"
         >
           Uncontrolled Form
         </Link>
         <Link
           to="/react-hook-form"
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          className="px-4 py-2 text-white rounded hover:bg-blue-600"
         >
           React Hook Form
         </Link>
       </nav>
-
-      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <DataTile 
-          title="Uncontrolled Form Data" 
-          data={uncontrolledFormData} 
-          isNew={uncontrolledFormData.isNew}
-        />
-        <DataTile 
-          title="React Hook Form Data" 
-          data={reactHookFormData} 
-          isNew={reactHookFormData.isNew}
-        />
-      </div> */}
       <Outlet />
     </header>
   );

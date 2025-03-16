@@ -43,32 +43,39 @@ const UncontrolledForm = () => {
       hasSpecialChar: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
     });
   };
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked, files } = e.target;
+    const { id, name, value, type, checked, files } = e.target;
 
     if (type === 'file') {
       if (files && files[0]) {
         const file = files[0];
         if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
-          setErrors({ ...errors, image: 'Only JPEG and PNG formats are allowed' });
+          setErrors({
+            ...errors,
+            image: 'Only JPEG and PNG formats are allowed',
+          });
           return;
         }
-
         if (file.size > 5 * 1024 * 1024) {
           setErrors({ ...errors, image: 'Image must be less than 5MB' });
           return;
         }
 
+        
         const reader = new FileReader();
         reader.onloadend = () => {
-          setFormData((prev) => ({ ...prev, imageBase64: reader.result as string, image: file }));
+          setFormData((prev) => ({
+            ...prev,
+            imageBase64: reader.result as string,
+            image: file,
+          }));
           setErrors((prev) => {
             const { image, ...rest } = prev;
             return rest;
           });
         };
-        
+
         reader.readAsDataURL(file);
       }
       return;
@@ -82,24 +89,28 @@ const UncontrolledForm = () => {
     if (name === 'password') {
       checkPasswordStrength(value);
     }
+    if (name === 'gender') {
+      setFormData((prev) => ({ 
+        ...prev,
+        gender: id,
+      }));
+    }
   };
-
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     try {
       // console.log('Form Data:', formData);
-      
+
       const finalData: Partial<FormData> = {
         ...formData,
         age: formData.age ? Number(formData.age) : undefined,
         isNew: false,
       };
-      console.log('Final Data:', finalData);
-      
+
       await formSchema.validate(finalData, { abortEarly: false });
-      finalData.image = undefined;
+      // finalData.file = undefined;
       dispatch(saveUncontrolledForm(finalData as FormData));
       navigate('/');
     } catch (error) {
@@ -122,31 +133,56 @@ const UncontrolledForm = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="mb-4">
           <label htmlFor="name">Name</label>
-          <input type="text" name="name" value={formData.name} onChange={handleChange} />
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+          />
           {errors.name && <p>{errors.name}</p>}
         </div>
 
         <div className="mb-4">
           <label htmlFor="age">Age</label>
-          <input type="number" name="age" value={formData.age} onChange={handleChange} />
+          <input
+            type="number"
+            name="age"
+            value={formData.age}
+            onChange={handleChange}
+          />
           {errors.age && <p>{errors.age}</p>}
         </div>
 
         <div className="mb-4">
           <label htmlFor="email">Email</label>
-          <input type="email" name="email" value={formData.email} onChange={handleChange} />
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+          />
           {errors.email && <p>{errors.email}</p>}
         </div>
 
         <div className="mb-4">
           <label htmlFor="password">Password</label>
-          <input type="password" name="password" value={formData.password} onChange={handleChange} />
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+          />
           {errors.password && <p>{errors.password}</p>}
         </div>
 
         <div className="mb-4">
           <label htmlFor="confirmPassword">Confirm Password</label>
-          <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} />
+          <input
+            type="password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+          />
           {errors.confirmPassword && <p>{errors.confirmPassword}</p>}
         </div>
 
@@ -189,14 +225,23 @@ const UncontrolledForm = () => {
           )}
         </div>
 
-        <AutocompleteCountry id="country" value={formData.country} onChange={(value) => setFormData((prev) => ({ ...prev, country: value }))} error={errors.country} />
+        <AutocompleteCountry
+          id="country"
+          value={formData.country}
+          onChange={(value) =>
+            setFormData((prev) => ({ ...prev, country: value }))
+          }
+          error={errors.country}
+        />
 
         <div className="mb-4">
           <label htmlFor="image">Profile Image (JPEG/PNG, max 5MB)</label>
-          <input 
-            type="file" name="files" 
-            onChange={handleChange} 
-            accept="image/jpeg,image/png"/>
+          <input
+            type="file"
+            name="files"
+            onChange={handleChange}
+            accept="image/jpeg,image/png"
+          />
           {errors.image && <p>{errors.image}</p>}
         </div>
 

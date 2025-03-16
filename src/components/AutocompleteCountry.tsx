@@ -48,8 +48,6 @@ const AutocompleteCountry: FC<AutocompleteCountryProps> = ({
     };
   }, []);
 
-  
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
     setIsOpen(true);

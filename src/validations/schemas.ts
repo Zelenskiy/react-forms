@@ -11,37 +11,43 @@ const checkPasswordStrength = (value: string): boolean => {
   const hasUpperCase = /[A-Z]/.test(value);
   const hasLowerCase = /[a-z]/.test(value);
   const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(value);
-  console.log('____1:', hasNumber && hasUpperCase && hasLowerCase && hasSpecialChar);
-  
+  console.log(
+    '____1:',
+    hasNumber && hasUpperCase && hasLowerCase && hasSpecialChar
+  );
 
   return hasNumber && hasUpperCase && hasLowerCase && hasSpecialChar;
 };
 
 const validateImage = (value: unknown): boolean => {
   // console.log('Value:', value);
-  
+
   const file = value as File | string | undefined;
   // console.log('File:', file);
-  
+
   if (!file) {
     console.log('No file provided');
     return false;
   }
 
   if (typeof file === 'string' && file.startsWith('data:image/')) {
-    const isValidBase64 = file.includes('data:image/jpeg') || file.includes('data:image/png');
+    const isValidBase64 =
+      file.includes('data:image/jpeg') || file.includes('data:image/png');
     if (!isValidBase64) {
       console.log('Invalid base64 format. Must be JPEG or PNG.');
       return false;
     }
 
-    const base64Size = Math.round((file.length * (3 / 4)) - (file.includes('=') ? file.split('=').length - 1 : 0)); // size in bytes
+    const base64Size = Math.round(
+      file.length * (3 / 4) -
+        (file.includes('=') ? file.split('=').length - 1 : 0)
+    ); // size in bytes
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (base64Size > maxSize) {
       console.log('Base64 size exceeds 5MB');
       return false;
     }
-    
+
     console.log('Base64 string is valid');
     return true;
   }
@@ -59,7 +65,7 @@ const validateImage = (value: unknown): boolean => {
     return isValidType;
   }
   console.log('file', file);
-  
+
   console.log('Invalid file type');
   return false;
 };
@@ -105,7 +111,8 @@ export const formSchema = yup.object().shape({
     .boolean()
     .oneOf([true], 'You must accept Terms and Conditions'),
 
-  image: yup
+  imageBase64: yup
+    // image: yup
     .mixed()
     .test(
       'is-valid-image',

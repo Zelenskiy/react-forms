@@ -30,7 +30,7 @@ const ReactHookForm = () => {
     setValue,
     trigger,
   } = useForm<FormData>({
-    // resolver: yupResolver(formSchema),
+    resolver: yupResolver(formSchema),
     mode: 'onChange',
     defaultValues: {
       firstName: '',
@@ -40,15 +40,11 @@ const ReactHookForm = () => {
       confirmPassword: '',
       gender: '',
       country: '',
-      termsAccepted: false,
-      image: null,
       imageBase64: '',
     },
   });
 
   const password = watch('password');
-  // const image = watch('image');
-  // const termsAccepted = watch('termsAccepted');
 
   useEffect(() => {
     if (password) {
@@ -64,26 +60,10 @@ const ReactHookForm = () => {
   useEffect(() => {
     setValue('country', country);
     setTimeout(() => trigger('country'), 0);
-    console.log('First Name:', watch('firstName'));
-    console.log('Age:', watch('age'));
-    console.log('Email:', watch('email'));
-    console.log('Password:', watch('password'));
-    console.log('Confirm Password:', watch('confirmPassword'));
-    console.log('Gender:', watch('gender'));
-    console.log('Country:', watch('country'));
-    console.log('Profile Image:', watch('image'));
-    console.log('Terms Accepted:', watch('termsAccepted'));
-    console.log('isValid:', isValid);
-    console.log('formData:', watch());
-    console.log('file:', imagePreview);
-    
-    
   }, [country, setValue, trigger]);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-
-    
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -92,13 +72,9 @@ const ReactHookForm = () => {
         setImageBase64(base64);
         setValue('imageBase64', base64);
         console.log('file', file);
-        
-        setValue('image', file);
         trigger('imageBase64');
       };
       reader.readAsDataURL(file);
-      setValue('image', file);
-      trigger('image');
     }
   };
 
@@ -134,13 +110,21 @@ const ReactHookForm = () => {
 
       <div className="mb-4">
         <label>Password:</label>
-        <input type="password" {...register('password')} autoComplete="new-password" />
+        <input
+          type="password"
+          {...register('password')}
+          autoComplete="new-password"
+        />
         {errors.password && <p>{errors.password.message}</p>}
       </div>
 
       <div className="mb-4">
         <label>Confirm Password:</label>
-        <input type="password" {...register('confirmPassword')} autoComplete="new-password" />
+        <input
+          type="password"
+          {...register('confirmPassword')}
+          autoComplete="new-password"
+        />
         {errors.confirmPassword && <p>{errors.confirmPassword.message}</p>}
       </div>
 
@@ -157,37 +141,46 @@ const ReactHookForm = () => {
 
       <div className="mb-4">
         <label>Country:</label>
-        <AutocompleteCountry 
-          value={country} 
-          onChange={setCountry} 
-          id="country" />
+        <AutocompleteCountry
+          value={country}
+          onChange={setCountry}
+          id="country"
+        />
         {errors.country && <p>{errors.country.message}</p>}
       </div>
 
       <div className="mb-4">
         <label>Profile Image:</label>
-        <input 
-          type="file" 
-          accept="image/*" 
-          name='image'
-          // {...register('image')} 
-          onChange={handleImageUpload} />
-        {imagePreview && <img src={imagePreview} className="preview-image" alt="Preview" />}
-        {errors.image && <p>{errors.image.message}</p>}
+        <input
+          type="file"
+          accept="image/*"
+          name="image"
+          // {...register('image')}
+          onChange={handleImageUpload}
+        />
+        {imagePreview && (
+          <img src={imagePreview} className="preview-image" alt="Preview" />
+        )}
+        {errors.imageBase64 && <p>{errors.imageBase64.message}</p>}
       </div>
 
       <div className="mb-4">
-          <div className="flex items-center mt-4">
-      <input type="checkbox" {...register('termsAccepted')} className={`mr-2 ${errors.termsAccepted ? 'border-red-500' : ''}`} />
-        <label>I accept the Terms and Conditions</label>
-        {errors.termsAccepted && <p>{errors.termsAccepted.message}</p>}
-      </div>
+        <div className="flex items-center mt-4">
+          <input
+            type="checkbox"
+            {...register('termsAccepted')}
+            className={`mr-2 ${errors.termsAccepted ? 'border-red-500' : ''}`}
+          />
+          <label>I accept the Terms and Conditions</label>
+          {errors.termsAccepted && <p>{errors.termsAccepted.message}</p>}
+        </div>
       </div>
 
-      <button 
-        type="submit" 
-        // disabled={!isValid} 
-        className={`btn ${isValid ? 'btn-active' : 'btn-disabled'}`}>
+      <button
+        type="submit"
+        disabled={!isValid}
+        className={`btn ${isValid ? 'btn-active' : 'btn-disabled'}`}
+      >
         Submit
       </button>
     </form>

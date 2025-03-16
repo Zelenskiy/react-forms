@@ -6,25 +6,15 @@ const isFirstLetterUpperCase = (value: string): boolean => {
 
 const checkPasswordStrength = (value: string): boolean => {
   if (!value) return false;
-
   const hasNumber = /\d/.test(value);
   const hasUpperCase = /[A-Z]/.test(value);
   const hasLowerCase = /[a-z]/.test(value);
   const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(value);
-  console.log(
-    '____1:',
-    hasNumber && hasUpperCase && hasLowerCase && hasSpecialChar
-  );
-
   return hasNumber && hasUpperCase && hasLowerCase && hasSpecialChar;
 };
 
 const validateImage = (value: unknown): boolean => {
-  // console.log('Value:', value);
-
   const file = value as File | string | undefined;
-  // console.log('File:', file);
-
   if (!file) {
     console.log('No file provided');
     return false;
@@ -72,13 +62,13 @@ const validateImage = (value: unknown): boolean => {
 
 export const formSchema = yup.object().shape({
   name: yup
-    .string()
-    .required('Name is required')
-    .test(
-      'is-uppercase',
-      'First letter must be uppercase',
-      isFirstLetterUpperCase
-    ),
+  .string()
+  .required('Name is required')
+  .test(
+    'is-uppercase',
+    'First letter must be uppercase',
+    isFirstLetterUpperCase
+  ),
 
   age: yup
     .number()

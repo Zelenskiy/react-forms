@@ -33,7 +33,7 @@ const ReactHookForm = () => {
     resolver: yupResolver(formSchema),
     mode: 'onChange',
     defaultValues: {
-      firstName: '',
+      name: '',
       age: undefined,
       email: '',
       password: '',
@@ -92,8 +92,8 @@ const ReactHookForm = () => {
     <form onSubmit={handleSubmit(onSubmit)} className="form-container">
       <div className="mb-4">
         <label>Name:</label>
-        <input {...register('firstName')} autoComplete="given-name" />
-        {errors.firstName && <p>{errors.firstName.message}</p>}
+        <input {...register('name')} autoComplete="given-name" />
+        {errors.name && <p>{errors.name.message}</p>}
       </div>
 
       <div className="mb-4">

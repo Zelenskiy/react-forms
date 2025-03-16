@@ -8,6 +8,8 @@ interface DataTileProps {
 }
 
 const DataTile: FC<DataTileProps> = ({ title, data, isNew }) => {
+  console.log('DataTile:', data);
+  
   return (
     <div
       className={`border rounded-lg p-4 shadow-md transition-all ${isNew ? 'bg-yellow-100 border-yellow-500' : 'bg-white border-gray-200'}`}

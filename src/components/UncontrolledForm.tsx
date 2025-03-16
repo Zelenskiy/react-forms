@@ -110,7 +110,7 @@ const UncontrolledForm = () => {
       };
 
       await formSchema.validate(finalData, { abortEarly: false });
-      // finalData.file = undefined;
+      finalData.image = undefined;
       dispatch(saveUncontrolledForm(finalData as FormData));
       navigate('/');
     } catch (error) {

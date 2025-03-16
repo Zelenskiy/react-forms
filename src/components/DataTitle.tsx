@@ -43,7 +43,6 @@ const DataTile: FC<DataTileProps> = ({ title, data, isNew }) => {
               <p className="font-medium mb-1">Image:</p>
               <img
                 src={data.imageBase64 as unknown as string}
-                // src={data.image}
                 alt="Uploaded"
                 className="preview-image"
               />

@@ -14,7 +14,6 @@ const MainPage = () => {
   );
   const dispatch = useDispatch();
 
-  // Reset the 'isNew' flag after a few seconds to stop highlighting
   useEffect(() => {
     if (uncontrolledFormData.isNew) {
       const timer = setTimeout(() => {

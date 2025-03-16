@@ -7,7 +7,6 @@ interface AutocompleteCountryProps {
   onChange: (value: string) => void;
   error?: string;
   id: string;
-  // setCountry: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const AutocompleteCountry: FC<AutocompleteCountryProps> = ({
@@ -60,9 +59,6 @@ const AutocompleteCountry: FC<AutocompleteCountryProps> = ({
 
   return (
     <div className="mb-4" ref={wrapperRef}>
-      {/* <label htmlFor={id} className="block text-sm font-medium mb-1">
-        Country
-      </label> */}
       <div className="relative">
         <input
           type="text"

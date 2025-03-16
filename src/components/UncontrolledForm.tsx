@@ -52,10 +52,9 @@ const UncontrolledForm = () => {
           setFormData((prev) => ({
             ...prev,
             imageBase64: reader.result as string,
-            image: file,
           }));
           setErrors((prev) => {
-            const { image, ...rest } = prev;
+            const { ...rest } = prev;
             return rest;
           });
         };

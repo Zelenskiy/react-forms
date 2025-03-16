@@ -31,8 +31,8 @@ const validateImage = (value: unknown): boolean => {
     const base64Size = Math.round(
       file.length * (3 / 4) -
         (file.includes('=') ? file.split('=').length - 1 : 0)
-    ); // size in bytes
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    );
+    const maxSize = 5 * 1024 * 1024;
     if (base64Size > maxSize) {
       console.log('Base64 size exceeds 5MB');
       return false;
@@ -102,7 +102,6 @@ export const formSchema = yup.object().shape({
     .oneOf([true], 'You must accept Terms and Conditions'),
 
   imageBase64: yup
-    // image: yup
     .mixed()
     .test(
       'is-valid-image',

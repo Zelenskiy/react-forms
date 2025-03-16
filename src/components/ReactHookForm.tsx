@@ -128,7 +128,6 @@ const ReactHookForm = () => {
           type="file"
           accept="image/*"
           name="image"
-          // {...register('image')}
           onChange={handleImageUpload}
         />
         {imagePreview && (

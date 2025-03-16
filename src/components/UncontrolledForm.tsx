@@ -1,4 +1,4 @@
-import { useRef, useState, FormEvent } from 'react';
+import { useState, FormEvent } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { saveUncontrolledForm } from '../store/formSlice';
@@ -12,18 +12,18 @@ interface FormErrors {
 }
 
 const UncontrolledForm = () => {
-  const formRef = useRef<HTMLFormElement>(null);
-  const nameRef = useRef<HTMLInputElement>(null);
-  const ageRef = useRef<HTMLInputElement>(null);
-  const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
-  const confirmPasswordRef = useRef<HTMLInputElement>(null);
-  const maleRef = useRef<HTMLInputElement>(null);
-  const femaleRef = useRef<HTMLInputElement>(null);
-  const otherRef = useRef<HTMLInputElement>(null);
-  const termsRef = useRef<HTMLInputElement>(null);
-  const imageRef = useRef<HTMLInputElement>(null);
-  const [country, setCountry] = useState<string>('');
+  const [formData, setFormData] = useState({
+    name: '',
+    age: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    gender: '',
+    termsAccepted: false,
+    country: '',
+    imageBase64: '',
+  });
+
   const [errors, setErrors] = useState<FormErrors>({});
   const [passwordStrength, setPasswordStrength] = useState({
     hasNumber: false,
@@ -31,9 +31,6 @@ const UncontrolledForm = () => {
     hasLowerCase: false,
     hasSpecialChar: false,
   });
-  const [imagePreview, setImagePreview] = useState<File | null | undefined>(
-    null
-  );
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -46,67 +43,64 @@ const UncontrolledForm = () => {
       hasSpecialChar: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
     });
   };
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked, files } = e.target;
 
-  const handlePasswordChange = () => {
-    if (passwordRef.current) {
-      checkPasswordStrength(passwordRef.current.value);
+    if (type === 'file') {
+      if (files && files[0]) {
+        const file = files[0];
+        if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
+          setErrors({ ...errors, image: 'Only JPEG and PNG formats are allowed' });
+          return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+          setErrors({ ...errors, image: 'Image must be less than 5MB' });
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setFormData((prev) => ({ ...prev, imageBase64: reader.result as string, image: file }));
+          setErrors((prev) => {
+            const { image, ...rest } = prev;
+            return rest;
+          });
+        };
+        
+        reader.readAsDataURL(file);
+      }
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+
+    if (name === 'password') {
+      checkPasswordStrength(value);
     }
   };
 
-  const handleImageChange = () => {
-    if (imageRef.current?.files && imageRef.current.files[0]) {
-      const file = imageRef.current.files[0];
-
-      // Check file size and type
-      if (file.size > 5 * 1024 * 1024) {
-        // 5MB
-        setErrors({ ...errors, image: 'Image must be less than 5MB' });
-        return;
-      }
-
-      if (!['image/jpeg', 'image/png'].includes(file.type)) {
-        setErrors({
-          ...errors,
-          image: 'Only JPEG and PNG formats are allowed',
-        });
-        return;
-      }
-
-      setImagePreview(file);
-
-      if (errors.image) {
-        const { image, ...rest } = errors;
-        setErrors(rest);
-      }
-    }
-  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     try {
-      const formData: Partial<FormData> = {
-        name: nameRef.current?.value || '',
-        age: ageRef.current?.value ? Number(ageRef.current.value) : undefined,
-        email: emailRef.current?.value || '',
-        password: passwordRef.current?.value || '',
-        confirmPassword: confirmPasswordRef.current?.value || '',
-        gender: maleRef.current?.checked
-          ? 'male'
-          : femaleRef.current?.checked
-            ? 'female'
-            : otherRef.current?.checked
-              ? 'other'
-              : '',
-        termsAccepted: termsRef.current?.checked || false,
-        country: country,
-        image: imagePreview || undefined,
+      // console.log('Form Data:', formData);
+      
+      const finalData: Partial<FormData> = {
+        ...formData,
+        age: formData.age ? Number(formData.age) : undefined,
         isNew: false,
       };
-
-      await formSchema.validate(formData, { abortEarly: false });
-
-      dispatch(saveUncontrolledForm(formData as FormData));
+      console.log('Final Data:', finalData);
+      
+      await formSchema.validate(finalData, { abortEarly: false });
+      finalData.image = undefined;
+      dispatch(saveUncontrolledForm(finalData as FormData));
       navigate('/');
     } catch (error) {
       if (error instanceof yup.ValidationError) {
@@ -123,128 +117,37 @@ const UncontrolledForm = () => {
 
   return (
     <div className="container mx-auto p-4 max-w-2xl">
-      <h1 className="text-2xl font-bold mb-6">Uncontrolled Form Approach</h1>
+      <h1 className="text-2xl font-bold mb-6">Controlled Form Approach</h1>
 
-      <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="mb-4">
-          <label htmlFor="name" className="block text-sm font-medium mb-1">
-            Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            ref={nameRef}
-            className={`w-full p-2 border rounded ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
-          />
-          {errors.name && (
-            <p className="text-red-500 text-xs mt-1">{errors.name}</p>
-          )}
+          <label htmlFor="name">Name</label>
+          <input type="text" name="name" value={formData.name} onChange={handleChange} />
+          {errors.name && <p>{errors.name}</p>}
         </div>
 
         <div className="mb-4">
-          <label htmlFor="age" className="block text-sm font-medium mb-1">
-            Age
-          </label>
-          <input
-            type="number"
-            id="age"
-            ref={ageRef}
-            className={`w-full p-2 border rounded ${errors.age ? 'border-red-500' : 'border-gray-300'}`}
-          />
-          {errors.age && (
-            <p className="text-red-500 text-xs mt-1">{errors.age}</p>
-          )}
+          <label htmlFor="age">Age</label>
+          <input type="number" name="age" value={formData.age} onChange={handleChange} />
+          {errors.age && <p>{errors.age}</p>}
         </div>
 
         <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium mb-1">
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            ref={emailRef}
-            className={`w-full p-2 border rounded ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
-          />
-          {errors.email && (
-            <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-          )}
+          <label htmlFor="email">Email</label>
+          <input type="email" name="email" value={formData.email} onChange={handleChange} />
+          {errors.email && <p>{errors.email}</p>}
         </div>
 
         <div className="mb-4">
-          <label htmlFor="password" className="block text-sm font-medium mb-1">
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            ref={passwordRef}
-            onChange={handlePasswordChange}
-            className={`w-full p-2 border rounded ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
-          />
-          {errors.password && (
-            <p className="text-red-500 text-xs mt-1">{errors.password}</p>
-          )}
-
-          {/* <div className="mt-2">
-            <p className="text-sm font-medium mb-1">Password strength:</p>
-            <div className="flex space-x-2">
-              <div
-                className={`h-1 w-1/4 rounded ${passwordStrength.hasNumber ? 'bg-green-500' : 'bg-gray-300'}`}
-              ></div>
-              <div
-                className={`h-1 w-1/4 rounded ${passwordStrength.hasUpperCase ? 'bg-green-500' : 'bg-gray-300'}`}
-              ></div>
-              <div
-                className={`h-1 w-1/4 rounded ${passwordStrength.hasLowerCase ? 'bg-green-500' : 'bg-gray-300'}`}
-              ></div>
-              <div
-                className={`h-1 w-1/4 rounded ${passwordStrength.hasSpecialChar ? 'bg-green-500' : 'bg-gray-300'}`}
-              ></div>
-            </div>
-            <div className="grid grid-cols-2 mt-1">
-              <span
-                className={`text-xs ${passwordStrength.hasNumber ? 'text-green-500' : 'text-gray-500'}`}
-              >
-                Numbers
-              </span>
-              <span
-                className={`text-xs ${passwordStrength.hasUpperCase ? 'text-green-500' : 'text-gray-500'}`}
-              >
-                Uppercase character
-              </span>
-              <span
-                className={`text-xs ${passwordStrength.hasLowerCase ? 'text-green-500' : 'text-gray-500'}`}
-              >
-                Lowercase character
-              </span>
-              <span
-                className={`text-xs ${passwordStrength.hasSpecialChar ? 'text-green-500' : 'text-gray-500'}`}
-              >
-                Special character
-              </span>
-            </div>
-          </div> */}
+          <label htmlFor="password">Password</label>
+          <input type="password" name="password" value={formData.password} onChange={handleChange} />
+          {errors.password && <p>{errors.password}</p>}
         </div>
 
         <div className="mb-4">
-          <label
-            htmlFor="confirmPassword"
-            className="block text-sm font-medium mb-1"
-          >
-            Confirm Password
-          </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            ref={confirmPasswordRef}
-            className={`w-full p-2 border rounded ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'}`}
-          />
-          {errors.confirmPassword && (
-            <p className="text-red-500 text-xs mt-1">
-              {errors.confirmPassword}
-            </p>
-          )}
+          <label htmlFor="confirmPassword">Confirm Password</label>
+          <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} />
+          {errors.confirmPassword && <p>{errors.confirmPassword}</p>}
         </div>
 
         <div className="mb-4">
@@ -255,7 +158,7 @@ const UncontrolledForm = () => {
                 type="radio"
                 id="male"
                 name="gender"
-                ref={maleRef}
+                onChange={handleChange}
                 className="mr-1"
               />
               <label htmlFor="male">Male</label>
@@ -265,7 +168,7 @@ const UncontrolledForm = () => {
                 type="radio"
                 id="female"
                 name="gender"
-                ref={femaleRef}
+                onChange={handleChange}
                 className="mr-1"
               />
               <label htmlFor="female">Female</label>
@@ -275,7 +178,7 @@ const UncontrolledForm = () => {
                 type="radio"
                 id="other"
                 name="gender"
-                ref={otherRef}
+                onChange={handleChange}
                 className="mr-1"
               />
               <label htmlFor="other">Other</label>
@@ -286,47 +189,24 @@ const UncontrolledForm = () => {
           )}
         </div>
 
-        <AutocompleteCountry
-          id="uncontrolled-country"
-          value={country}
-          onChange={setCountry}
-          error={errors.country}
-        />
+        <AutocompleteCountry id="country" value={formData.country} onChange={(value) => setFormData((prev) => ({ ...prev, country: value }))} error={errors.country} />
 
         <div className="mb-4">
-          <label htmlFor="image" className="block text-sm font-medium mb-1">
-            Profile Image (JPEG/PNG, max 5MB)
-          </label>
-          <input
-            type="file"
-            id="image"
-            ref={imageRef}
-            onChange={handleImageChange}
-            accept="image/jpeg,image/png"
-            className={`w-full p-2 border rounded ${errors.image ? 'border-red-500' : 'border-gray-300'}`}
-          />
-          {errors.image && (
-            <p className="text-red-500 text-xs mt-1">{errors.image}</p>
-          )}
-
-          {/* {imagePreview && (
-            <div className="mt-2">
-              <p className="text-sm font-medium mb-1">Image Preview:</p>
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="max-w-full h-auto max-h-40 rounded border"
-              />
-            </div>
-          )} */}
+          <label htmlFor="image">Profile Image (JPEG/PNG, max 5MB)</label>
+          <input 
+            type="file" name="files" 
+            onChange={handleChange} 
+            accept="image/jpeg,image/png"/>
+          {errors.image && <p>{errors.image}</p>}
         </div>
 
         <div className="mb-4">
           <div className="flex items-center">
             <input
+              name="termsAccepted"
               type="checkbox"
               id="terms"
-              ref={termsRef}
+              onChange={handleChange}
               className={`mr-2 ${errors.termsAccepted ? 'border-red-500' : ''}`}
             />
             <label htmlFor="terms" className="text-sm">
@@ -338,14 +218,7 @@ const UncontrolledForm = () => {
           )}
         </div>
 
-        <div className="mt-6">
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-          >
-            Submit
-          </button>
-        </div>
+        <button type="submit">Submit</button>
       </form>
     </div>
   );

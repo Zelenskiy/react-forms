@@ -11,25 +11,56 @@ const checkPasswordStrength = (value: string): boolean => {
   const hasUpperCase = /[A-Z]/.test(value);
   const hasLowerCase = /[a-z]/.test(value);
   const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(value);
+  console.log('____1:', hasNumber && hasUpperCase && hasLowerCase && hasSpecialChar);
+  
 
   return hasNumber && hasUpperCase && hasLowerCase && hasSpecialChar;
 };
 
 const validateImage = (value: unknown): boolean => {
+  // console.log('Value:', value);
+  
   const file = value as File | string | undefined;
-  if (!file) return false;
+  // console.log('File:', file);
+  
+  if (!file) {
+    console.log('No file provided');
+    return false;
+  }
 
   if (typeof file === 'string' && file.startsWith('data:image/')) {
-    return file.includes('data:image/jpeg') || file.includes('data:image/png');
+    const isValidBase64 = file.includes('data:image/jpeg') || file.includes('data:image/png');
+    if (!isValidBase64) {
+      console.log('Invalid base64 format. Must be JPEG or PNG.');
+      return false;
+    }
+
+    const base64Size = Math.round((file.length * (3 / 4)) - (file.includes('=') ? file.split('=').length - 1 : 0)); // size in bytes
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (base64Size > maxSize) {
+      console.log('Base64 size exceeds 5MB');
+      return false;
+    }
+    
+    console.log('Base64 string is valid');
+    return true;
   }
 
-  const maxSize = 5 * 1024 * 1024; // 5MB
-  if (file instanceof File && file.size > maxSize) return false;
-
-  const validTypes = ['image/jpeg', 'image/png'];
   if (file instanceof File) {
-    return validTypes.includes(file.type);
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      console.log('File size exceeds 5MB');
+      return false;
+    }
+
+    const validTypes = ['image/jpeg', 'image/png'];
+    const isValidType = validTypes.includes(file.type);
+    console.log('File type valid:', isValidType);
+    return isValidType;
   }
+  console.log('file', file);
+  
+  console.log('Invalid file type');
   return false;
 };
 

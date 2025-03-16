@@ -1,47 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { saveReactHookForm } from '../store/formSlice';
 import AutocompleteCountry from './AutocompleteCountry';
+import { formSchema } from '../validations/schemas';
 import { FormData } from '../types/types';
-
-const formSchema = yup.object().shape({
-  firstName: yup.string().required('Name is required'),
-  age: yup
-    .number()
-    .typeError('Age must be a number')
-    .positive('Age must be positive')
-    .integer('Age must be an integer')
-    .min(18, 'You must be at least 18 years old')
-    .max(120, 'Age cannot exceed 120')
-    .required('Age is required'),
-  email: yup
-    .string()
-    .email('Enter a valid email address')
-    .required('Email is required'),
-  password: yup
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .matches(/\d/, 'Password must contain at least one number')
-    .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
-    .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
-    .matches(/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/, 'Password must contain at least one special character')
-    .required('Password is required'),
-  confirmPassword: yup
-    .string()
-    .oneOf([yup.ref('password')], 'Passwords must match')
-    .required('Confirm password is required'),
-  gender: yup.string().required('Gender is required'),
-  country: yup.string().required('Country is required'),
-  profileImage: yup.mixed().required('Profile image is required'),
-  termsAccepted: yup
-    .boolean()
-    .oneOf([true], 'You must accept the terms and conditions')
-    .required('You must accept the terms and conditions'),
-});
 
 const ReactHookForm = () => {
   const [passwordStrength, setPasswordStrength] = useState({
@@ -52,6 +17,7 @@ const ReactHookForm = () => {
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [country, setCountry] = useState<string>('');
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -59,7 +25,7 @@ const ReactHookForm = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
     watch,
     setValue,
     trigger,
@@ -75,10 +41,14 @@ const ReactHookForm = () => {
       gender: '',
       country: '',
       termsAccepted: false,
+      image: null,
+      imageBase64: '',
     },
   });
 
   const password = watch('password');
+  // const image = watch('image');
+  // const termsAccepted = watch('termsAccepted');
 
   useEffect(() => {
     if (password) {
@@ -93,7 +63,21 @@ const ReactHookForm = () => {
 
   useEffect(() => {
     setValue('country', country);
-    trigger('country');
+    setTimeout(() => trigger('country'), 0);
+    console.log('First Name:', watch('firstName'));
+    console.log('Age:', watch('age'));
+    console.log('Email:', watch('email'));
+    console.log('Password:', watch('password'));
+    console.log('Confirm Password:', watch('confirmPassword'));
+    console.log('Gender:', watch('gender'));
+    console.log('Country:', watch('country'));
+    console.log('Profile Image:', watch('image'));
+    console.log('Terms Accepted:', watch('termsAccepted'));
+    console.log('isValid:', isValid);
+    console.log('formData:', watch());
+    console.log('file:', imagePreview);
+    
+    
   }, [country, setValue, trigger]);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,17 +85,29 @@ const ReactHookForm = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+        const base64 = reader.result as string;
+        setImagePreview(file ? URL.createObjectURL(file) : null);
+        setImageBase64(base64);
+        setValue('imageBase64', base64);
+        console.log('file', file);
+        
+        setValue('image', file);
+        trigger('imageBase64');
       };
       reader.readAsDataURL(file);
-      setValue('profileImage', file);
-      trigger('profileImage');
+      setValue('image', file);
+      trigger('image');
     }
   };
 
   const onSubmit = (data: FormData) => {
-    dispatch(saveReactHookForm(data));
-    navigate('/success');
+    if (isValid) {
+      console.log('Data:', data);
+      dispatch(saveReactHookForm(data));
+      navigate('/');
+    } else {
+      console.log('Form is invalid');
+    }
   };
 
   return (
@@ -122,164 +118,75 @@ const ReactHookForm = () => {
         {errors.firstName && <p>{errors.firstName.message}</p>}
       </div>
 
-      <div className="mb-4">
-        <label htmlFor="age" className="block text-sm font-medium mb-1">
-          Age
-        </label>
-        <input
-          type="number"
-          id="age"
-          {...register('age')}
-          autoComplete="age"
-          className={`w-full p-2 border rounded ${errors.age ? 'border-red-500' : 'border-gray-300'}`}
-        />
-        {errors.age && (
-          <p className="text-red-500 text-xs mt-1">{errors.age?.message}</p>
-        )}
+      <div>
+        <label>Age:</label>
+        <input type="number" {...register('age')} autoComplete="age" />
+        {errors.age && <p>{errors.age.message}</p>}
       </div>
 
-      <div className="mb-4">
-        <label htmlFor="email" className="block text-sm font-medium mb-1">
-          Email
-        </label>
-        <input
-          type="email"
-          id="email"
-          {...register('email')}
-          autoComplete="email"
-          className={`w-full p-2 border rounded ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
-        />
-        {errors.email && (
-          <p className="text-red-500 text-xs mt-1">{errors.email?.message}</p>
-        )}
+      <div>
+        <label>Email:</label>
+        <input type="email" {...register('email')} autoComplete="email" />
+        {errors.email && <p>{errors.email.message}</p>}
       </div>
 
       <div>
         <label>Password:</label>
-        <input 
-          type="password" 
-          {...register('password')} 
-          autoComplete="new-password" 
-        />
+        <input type="password" {...register('password')} autoComplete="new-password" />
         {errors.password && <p>{errors.password.message}</p>}
-
-        <div className="flex space-x-2">
-          <p className={passwordStrength.hasNumber ? 'valid' : 'invalid'}>
-            Digit
-          </p>
-          <p className={passwordStrength.hasUpperCase ? 'valid' : 'invalid'}>
-            Upper symbol
-          </p>
-          <p className={passwordStrength.hasLowerCase ? 'valid' : 'invalid'}>
-            Lower symbol
-          </p>
-          <p className={passwordStrength.hasSpecialChar ? 'valid' : 'invalid'}>
-            Special characters
-          </p>
-        </div>
-      </div>
-
-      <div className="mb-4">
-        <label
-          htmlFor="confirmPassword"
-          className="block text-sm font-medium mb-1"
-        >
-          Confirm Password
-        </label>
-        <input
-          type="password"
-          id="confirmPassword"
-          {...register('confirmPassword')}
-          autoComplete="new-password"
-          className={`w-full p-2 border rounded ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'}`}
-        />
-        {errors.confirmPassword && (
-          <p className="text-red-500 text-xs mt-1">
-            {errors.confirmPassword.message}
-          </p>
-        )}
-      </div>
-
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Gender</label>
-        <div className="flex gap-2">
-          <div className="flex items-center">
-            <input
-              type="radio"
-              id="male"
-              value="male"
-              {...register('gender')}
-              className="mr-1"
-            />
-            <label htmlFor="male">Male</label>
-          </div>
-          <div className="flex items-center">
-            <input
-              type="radio"
-              id="female"
-              value="female"
-              {...register('gender')}
-              className="mr-1"
-            />
-            <label htmlFor="female">Female</label>
-          </div>
-          <div className="flex items-center">
-            <input
-              type="radio"
-              id="other"
-              value="other"
-              {...register('gender')}
-              className="mr-1"
-            />
-            <label htmlFor="other">Other</label>
-          </div>
-        </div>
-        {errors.gender && (
-          <p className="text-red-500 text-xs mt-1">{errors.gender?.message}</p>
-        )}
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-1">Country:</label>
-        <AutocompleteCountry value={country} onChange={setCountry} id="country" />
-        {errors.country && <p className="text-red-500 text-xs mt-1">{errors.country.message}</p>}
+        <label>Confirm Password:</label>
+        <input type="password" {...register('confirmPassword')} autoComplete="new-password" />
+        {errors.confirmPassword && <p>{errors.confirmPassword.message}</p>}
       </div>
 
       <div>
-        <label>Photo:</label>
+        <label>Gender:</label>
+        <select {...register('gender')}>
+          <option value="">Select</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="other">Other</option>
+        </select>
+        {errors.gender && <p>{errors.gender.message}</p>}
+      </div>
+
+      <div>
+        <label>Country:</label>
+        <AutocompleteCountry 
+          value={country} 
+          onChange={setCountry} 
+          id="country" />
+        {errors.country && <p>{errors.country.message}</p>}
+      </div>
+
+      <div>
+        <label>Profile Image:</label>
         <input 
           type="file" 
           accept="image/*" 
-          {...register('profileImage', { onChange: handleImageUpload })}
-        />
-        {imagePreview && (
-          <img src={imagePreview} alt="Preview" className="preview-image" />
-        )}
-        {errors.profileImage && <p className="text-red-500 text-xs mt-1">{errors.profileImage.message}</p>}
+          name='image'
+          // {...register('image')} 
+          onChange={handleImageUpload} />
+        {imagePreview && <img src={imagePreview} className="preview-image" alt="Preview" />}
+        {errors.image && <p>{errors.image.message}</p>}
       </div>
 
-      <div className="mb-4 mt-4">
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            id="terms"
-            {...register('termsAccepted')}
-            className={`mr-2 ${errors.termsAccepted ? 'border-red-500' : ''}`}
-          />
-          <label htmlFor="terms" className="text-sm">
-            I accept the Terms and Conditions
-          </label>
-        </div>
-        {errors.termsAccepted && (
-          <p className="text-red-500 text-xs mt-1">{errors.termsAccepted?.message}</p>
-        )}
+      <div className="mb-4">
+          <div className="flex items-center mt-4">
+      <input type="checkbox" {...register('termsAccepted')} className={`mr-2 ${errors.termsAccepted ? 'border-red-500' : ''}`} />
+        <label>I accept the Terms and Conditions</label>
+        {errors.termsAccepted && <p>{errors.termsAccepted.message}</p>}
+      </div>
       </div>
 
       <button 
         type="submit" 
-        className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded"
-      >
-        Send
+        // disabled={!isValid} 
+        className={`btn ${isValid ? 'btn-active' : 'btn-disabled'}`}>
+        Submit
       </button>
     </form>
   );

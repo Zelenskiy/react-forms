@@ -1,23 +1,7 @@
-// export interface FormData {
-//     name: string;
-//     age: number;
-//     email: string;
-//     password: string;
-//     confirmPassword: string;
-//     gender: string;
-//     termsAccepted: boolean;
-//     country: string;
-//     isNew: boolean;
-//     profileImage?: File;
-//     image?: string| undefined;
-//     firstName: string;
-//   }
-
 export interface FormData {
   firstName: string;
   password: string;
   country: string;
-  profileImage: File | null;
   termsAccepted?: boolean;
   image?: File | null;
   name: string;
@@ -26,8 +10,10 @@ export interface FormData {
   confirmPassword: string;
   gender: string;
   isNew: boolean;
-  resolver: (data: FormData) => boolean;
+  resolver?: (data: FormData) => boolean  | undefined;
   mode: string;
+  imageBase64: string;
+  
 }
 
 export interface FormState {
